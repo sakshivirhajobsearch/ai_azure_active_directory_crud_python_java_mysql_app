@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test POST to Flask API</title>
+</head>
+<body>
+  <h2>Test POST /users/save</h2>
+
+  <button onclick="postData()">Send POST Request</button>
+
+  <pre id="response"></pre>
+
+  <script>
+    async function postData() {
+      const responseDisplay = document.getElementById("response");
+
+      try {
+        const res = await fetch("http://127.0.0.1:5000/users/save", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          }
+        });
+
+        const data = await res.json();
+        responseDisplay.textContent = JSON.stringify(data, null, 2);
+      } catch (error) {
+        responseDisplay.textContent = "Error: " + error;
+      }
+    }
+  </script>
+</body>
+</html>

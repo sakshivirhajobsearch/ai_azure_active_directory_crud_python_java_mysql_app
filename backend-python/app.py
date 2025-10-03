@@ -52,14 +52,15 @@ def save_users():
 
         cursor = conn.cursor()
         for u in users:
+            risk = predict_role_risk(u)
             cursor.execute("""
                 INSERT INTO azure_users (id, displayName, mail, jobTitle, risk) 
                 VALUES (%s, %s, %s, %s, %s)
                 ON DUPLICATE KEY UPDATE 
                     displayName=%s, mail=%s, jobTitle=%s, risk=%s
             """, (
-                u['id'], u['displayName'], u.get('mail', ''), u.get('jobTitle', ''), predict_role_risk(u),
-                u['displayName'], u.get('mail', ''), u.get('jobTitle', ''), predict_role_risk(u)
+                u['id'], u['displayName'], u.get('mail', ''), u.get('jobTitle', ''), risk,
+                u['displayName'], u.get('mail', ''), u.get('jobTitle', ''), risk
             ))
 
         conn.commit()
@@ -67,10 +68,23 @@ def save_users():
         conn.close()
         log_info("Users saved to MySQL successfully.")
         return jsonify({'message': 'Users saved to MySQL'})
-
     except Exception as e:
         log_error(f"Error in /users/save: {str(e)}")
         return jsonify({'error': 'Failed to save users'}), 500
+
+# ✅ /test-post endpoint for POST testing
+@app.route('/test-post', methods=['POST'])
+def test_post():
+    try:
+        data = request.get_json()
+        log_info(f"Received test POST data: {data}")
+        return jsonify({
+            "status": "Test POST successful",
+            "received": data
+        })
+    except Exception as e:
+        log_error(f"Error in /test-post: {str(e)}")
+        return jsonify({'error': 'Test POST failed'}), 500
 
 if __name__ == '__main__':
     log_info("Starting Flask server at http://127.0.0.1:5000/")
